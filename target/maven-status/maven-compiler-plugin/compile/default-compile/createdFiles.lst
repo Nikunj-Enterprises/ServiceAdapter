@@ -1,0 +1,9 @@
+com\easyapper\serviceadapter\util\EpochConverter.class
+com\easyapper\serviceadapter\util\CityUtil.class
+com\easyapper\serviceadapter\model\AlterraTravelQuery.class
+com\easyapper\serviceadapter\controller\FlightAdapter.class
+com\easyapper\serviceadapter\controller\FlightBookingAdapter.class
+com\easyapper\serviceadapter\ServiceAdapterApp.class
+com\easyapper\serviceadapter\controller\WeatherAdapter.class
+com\easyapper\serviceadapter\controller\CurrencyAdapter.class
+com\easyapper\serviceadapter\controller\QueryParserAdapter.class

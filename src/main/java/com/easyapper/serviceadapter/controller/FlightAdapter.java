@@ -89,10 +89,14 @@ public class FlightAdapter {
     }
 
     @RequestMapping("/flights/status")
-    public String findFlightStatus(@RequestParam("flight") String flight){
+    public String findFlightStatus(@RequestParam("flight") String flight,
+                                   @RequestParam(value="airport", required=false) String airport){
         //http://aviation-edge.com/api/public/flights?key=fab70f-dbd351-b5972d-d418c6-073003&flight[iataNumber]=W8583
         String routeFlightsUrl =
                 String.format(flightUrlTemplate,"flights")+"&flight[iataNumber]="+flight;
+        if(airport !=null && !airport.isEmpty()){
+            routeFlightsUrl = routeFlightsUrl + "&departure[iataCode]="+airport;
+        }
         ResponseEntity<String> response = restTemplate.getForEntity(routeFlightsUrl, String.class);
         ObjectMapper mapper = new ObjectMapper();
         JsonNode root = null;
@@ -129,11 +133,47 @@ public class FlightAdapter {
             String message =
                     "Flight "+flight+" "+status+" at altitude of "+altitude+" with lat("+latitude+") and lang("+longitude+")";
             builder.append(String.format("{\"text\":\"%s\"},",message));
+            String responseStr = "{\n" +
+                    " \"messages\": [{\n" +
+                    "    \"attachment\": {\n" +
+                    "      \"type\": \"template\",\n" +
+                    "      \"payload\": {\n" +
+                    "        \"template_type\": \"airline_update\",\n" +
+                    "        \"intro_message\": \""+message+"\",\n" +
+                    "        \"update_type\": \"delay\",\n" +
+                    "        \"locale\": \"en_US\",\n" +
+                    "        \"pnr_number\": \"NA\",\n" +
+                    "        \"update_flight_info\": {\n" +
+                    "          \"flight_number\": \""+flight+"\",\n" +
+                    "          \"departure_airport\": {\n" +
+                    "            \"airport_code\": \"SFO\",\n" +
+                    "            \"city\": \"San Francisco\",\n" +
+                    "            \"terminal\": \"T4\",\n" +
+                    "            \"gate\": \"G8\"\n" +
+                    "          },\n" +
+                    "          \"arrival_airport\": {\n" +
+                    "            \"airport_code\": \"ATH\",\n" +
+                    "            \"city\": \"Athens\",\n" +
+                    "            \"terminal\": \"T4\",\n" +
+                    "            \"gate\": \"G8\"\n" +
+                    "          },\n" +
+                    "          \"flight_schedule\": {\n" +
+                    "            \"boarding_time\": \"2018-08-26T10:30\",\n" +
+                    "            \"departure_time\": \"2018-08-26T11:30\",\n" +
+                    "            \"arrival_time\": \"2018-08-27T07:30\"\n" +
+                    "          }\n" +
+                    "        }\n" +
+                    "      }\n" +
+                    "    }\n" +
+                    "  }]\n" +
+                    "}";
+            return responseStr;
         }
-        int length = builder.length();
+        /*int length = builder.length();
         if (builder.lastIndexOf(",") == length - 1) {
             builder.deleteCharAt(length -1);
-        }
+        }*/
+
 
         return String.format("{ \"messages\": [ %s ]}",builder.toString());
 
